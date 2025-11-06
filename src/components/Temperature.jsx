@@ -19,14 +19,15 @@ export function Temperature() {
 
         try {
             const data = await getCityData(search.trim());
-            const forcast=await getForcast(search.trim());
-            if (data.cod === '404' || forcast.cod==='404') {
+            const forcast = await getForcast(search.trim());
+            if (data.cod === '404' || forcast.cod === '404') {
                 alert('City not found');
                 setWeather(null);
                 setForcast(null);
             } else {
                 setWeather(data);
                 setForcast(forcast);
+                setSearch('')
             }
         } catch (error) {
             console.error('Error fetching weather:', error);
@@ -34,6 +35,12 @@ export function Temperature() {
         }
     }
 
+    const handleClick = (e) => {
+        if (e.key === "Enter") {
+            handleSearch()
+            setSearch('')
+        }
+    }
     return (
         <div className='h-screen w-screen'>
             <div className='bg-cyan-500 rounded-b-3xl gap-5 p-3'>
@@ -42,17 +49,22 @@ export function Temperature() {
                         Weather☁️
                     </div>
                     <div className='flex p-2 gap-3'>
-                        <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder='Search' className='border-white border rounded-lg p-1.3 w-40 sm:w-100 px-2 placeholder:text-white placeholder:p-1 text-white' />
+                        <input type="text"
+                            value={search}
+                            onKeyDown={handleClick}
+                            onChange={(e) => setSearch(e.target.value)}
+                            placeholder='Search'
+                            className='border-white border rounded-lg p-1.3 w-40 sm:w-100 px-2 placeholder:text-white placeholder:p-1 text-white' />
                         <button
                             onClick={handleSearch}
-                            className='bg-white p-1.5 rounded-lg hover:bg-gray-300 hover:cursor-pointer '>Search</button>
+                            className='bg-white p-1.5 rounded-lg hover:bg-gray-300 hover:cursor-pointer active:cursor-not-allowed'>Search</button>
                     </div>
                 </div>
 
                 {/* Middle Portion */}
                 <div className='flex justify-center items-center flex-col mt-4'>
                     {
-                         weather ? (
+                        weather ? (
                             <>
                                 <div className='flex'>
 
@@ -71,20 +83,20 @@ export function Temperature() {
                                 <div className='text-white'>
                                     {(weather.main.temp_min - 273.15).toFixed()}~{(weather.main.temp_max - 273.15).toFixed()}
                                 </div>
-                                 <div className='flex justify-evenly mx-3 my-1 gap-20'>
-                            <div>
-                                <img src={sun} width={60} alt="sun" />
-                                <div className='font-semibold'>
-                                    {new Date(weather.sys.sunrise*1000).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}
+                                <div className='flex justify-evenly mx-3 my-1 gap-20'>
+                                    <div>
+                                        <img src={sun} width={60} alt="sun" />
+                                        <div className='font-semibold'>
+                                            {new Date(weather.sys.sunrise * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <img src={moon} width={60} alt="moon" />
+                                        <div className='font-semibold'>
+                                            {new Date(weather.sys.sunset * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div>
-                                <img src={moon} width={60} alt="moon" />
-                                <div className='font-semibold'>
-                                    {new Date(weather.sys.sunset*1000).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}
-                                </div>
-                            </div>
-                        </div>
                             </>
                         ) : (
                             <div className='text-white text-lg mt-10'>Enter a city to get started</div>
@@ -92,8 +104,8 @@ export function Temperature() {
                     }
                 </div>
             </div>
-                
-                    {forcast && forcast.list && (
+
+            {forcast && forcast.list && (
                 <div className='p-4'>
                     {forcast.list.map((item, index) => (
                         <Forecast key={index} data={item} />
